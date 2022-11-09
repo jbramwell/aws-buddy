@@ -1,18 +1,16 @@
-from operator import truediv
-from pprint import pprint
 from datetime import datetime
 import account
 import argparse
 import dotenv
-import json
 import csv
 
+# aws-list-ebs
+# Generates a comma-delimited (CSV) file listing all EBS volumes within the specified AWS account.
+
 # Setup command-line arguments
-
-
 def setup_cli_args():
     parser = argparse.ArgumentParser(
-        description='Lists EBS volume information for all EBS volumes in the specified account.')
+        description='Creates a comma-delimited (CSV) file listing all EBS volumes in the specified account.')
 
     parser.add_argument(
         "-p", "--profile", dest="profile", help="Specifies the AWS profile (from credentials file) to be used.")
@@ -29,7 +27,7 @@ def setup_cli_args():
     return parser.parse_args()
 
 
-# Display the AWS Account ID for reference
+# Displays startup paramters
 def display_startup_parameters(args, account):
     print("*******************************************")
     print(" Account ID: {0}".format(account.account_id))
@@ -45,6 +43,68 @@ def display_startup_parameters(args, account):
     print(" Verbose:    {0}".format(args.verbose))
     print("*******************************************")
 
+# Creates a CSV file with EBS Volume information
+def write_csv_file(filename, rows, field_names):
+    try:
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+
+            writer.writerow(field_names)
+            writer.writerows(rows)
+    except BaseException as e:
+        print('An error occurred when writing to ', filename)
+    else:
+        print("Results successfully saved to {0}".format(filename))
+
+# Returns a list of EBS Volume details for each of the EBS Volumes in the specified account
+def get_ebs_volume_details(client, account_id):
+    # Get a list of all EBS Volumes
+    volume_details = client.describe_volumes()
+    volume_rows = []
+
+    for volume in volume_details['Volumes']:
+        iops = ''
+        name = ''
+        drive = ''
+        instance_id = ''
+        device = ''
+        state = ''
+
+        if (volume['VolumeType'] != 'standard'):
+            iops = volume['Iops']
+
+        if ('Tags' in volume):
+            for tag in volume['Tags']:
+                if (tag['Key'] == 'Name'):
+                    name = tag['Value']
+
+                if (tag['Key'] == 'drive'):
+                    drive = tag['Value']
+
+        for attachment in volume['Attachments']:
+            if ('InstanceId' in attachment):
+                instance_id = attachment['InstanceId']
+
+            if ('Device' in attachment):
+                device = attachment['Device']
+
+            if ('State' in attachment):
+                state = attachment['State']
+
+        volume_rows.append([
+            account_id,
+            instance_id,
+            volume['VolumeId'],
+            name,
+            device,
+            drive,
+            volume['VolumeType'],
+            volume['Size'],
+            iops,
+            state])
+
+    return volume_rows
+
 
 # load the environment variables
 dotenv.load_dotenv()
@@ -57,66 +117,8 @@ aws_account = account.Account(args.profile, args.region)
 
 display_startup_parameters(args, aws_account)
 
-client = aws_account.session.client('ec2')
+volume_rows = list(get_ebs_volume_details(aws_account.session.client('ec2'), aws_account.account_id))
 
-# Get a list of all EBS Volumes
-volume_details = client.describe_volumes()
+field_names = ['Account ID', 'EC2 Instance ID', 'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
 
-volume_info = []
-x = 0
-
-for volume in volume_details['Volumes']:
-    iops = ''
-    name = ''
-    drive = ''
-    instance_id = ''
-    device = ''
-    state = ''
-    
-    if (volume['VolumeType'] != 'standard'):
-        iops = volume['Iops']
-
-    if ('Tags' in volume):
-        for tag in volume['Tags']:
-            if (tag['Key'] == 'Name'):
-                name = tag['Value']
-
-            if (tag['Key'] == 'drive'):
-                drive = tag['Value']
-
-    for attachment in volume['Attachments']:
-        if ('InstanceId' in attachment):
-            instance_id = attachment['InstanceId']
-
-        if ('Device' in attachment):
-            device = attachment['Device']
-
-        if ('State' in attachment):
-            state = attachment['State']
-
-    volume_info.append([
-        aws_account.account_id, 
-        instance_id,
-        volume['VolumeId'], 
-        name,
-        device,
-        drive,
-        volume['VolumeType'], 
-        volume['Size'], 
-        iops,
-        state])
-
-filename = args.output
-fields = ['Account ID', 'EC2 Instance ID', 'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
-
-try:
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-
-        writer.writerow(fields)
-        writer.writerows(volume_info)
-except BaseException as e:
-    print('An error occurred when writing to ', filename)
-else:
-    print("Results successfully saved to {0}".format(args.output))
-
+write_csv_file(args.output, volume_rows, field_names)
