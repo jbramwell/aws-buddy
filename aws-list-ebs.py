@@ -57,7 +57,7 @@ def write_csv_file(filename, rows, field_names):
         print("Results successfully saved to {0}".format(filename))
 
 # Returns a list of EBS Volume details for each of the EBS Volumes in the specified account
-def get_ebs_volume_details(client, account_id):
+def get_ebs_volume_details(client, account_id, region_name):
     # Get a list of all EBS Volumes
     volume_details = client.describe_volumes()
     volume_rows = []
@@ -91,9 +91,25 @@ def get_ebs_volume_details(client, account_id):
             if ('State' in attachment):
                 state = attachment['State']
 
+        ec2_arn = "arn:aws:ec2:{0}:{1}:{2}/{3}".format(
+            region_name,
+            account_id,
+            "instance",
+            instance_id
+        )
+
+        volume_arn = "arn:aws:ec2:{0}:{1}:{2}/{3}".format(
+            region_name,
+            account_id,
+            "volume",
+            volume['VolumeId']
+        )
+
         volume_rows.append([
             account_id,
+            ec2_arn,
             instance_id,
+            volume_arn,
             volume['VolumeId'],
             name,
             device,
@@ -117,8 +133,8 @@ aws_account = account.Account(args.profile, args.region)
 
 display_startup_parameters(args, aws_account)
 
-volume_rows = list(get_ebs_volume_details(aws_account.session.client('ec2'), aws_account.account_id))
+volume_rows = list(get_ebs_volume_details(aws_account.session.client('ec2'), aws_account.account_id, aws_account.region_name))
 
-field_names = ['Account ID', 'EC2 Instance ID', 'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
+field_names = ['Account ID', 'EC2 ARN', 'EC2 Instance ID', 'Volume ARN', 'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
 
 write_csv_file(args.output, volume_rows, field_names)

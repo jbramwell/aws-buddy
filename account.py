@@ -13,14 +13,17 @@ class Account:
 
         if (self.profile_name is None):
             # Get credentials from env config settings
+            self._region_name = region_name
+
             self.session = boto3.session.Session(
-                region_name=os.getenv('AWS_REGION'),
+                region_name=self._region_name,
                 aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
                 aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
         else:
             # Use the pre-defined AWS connection settings
+            self._region_name = region_name
             self.session = boto3.session.Session(profile_name=profile_name,
-                                                 region_name=region_name)
+                                                 region_name=self._region_name)
 
         sts = self.session.client("sts")
         self._account_id = sts.get_caller_identity()["Account"]
@@ -44,3 +47,7 @@ class Account:
     @property
     def account_id(self):
         return self._account_id
+
+    @property
+    def region_name(self):
+        return self._region_name
