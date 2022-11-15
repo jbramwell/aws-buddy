@@ -8,17 +8,22 @@ Usage: `python aws-list-volumes.py [-h] [-p PROFILE] [-v] [-d] [-o OUTPUT] [-r R
 |--------|-----------|:--------------------------------------------------------------------|
 | -h     | --help    | Show this help message and exit.                                    |
 | -o     | --output  | The name of the file to write the comma-separated (CSV) results to. |
-| -p     | --profile | Specifies the AWS profile (from credentials file) to be used.       |
+| -p     | --profile | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
 | -r     | --region  | Set a region if not already included in profile (e.g. us-east-1).   |
-| -v     | --verbose | Displays all log streams to be deleted (in CSV format).             |
 
 # Examples
 
-Generates a comma-delimited (CSV) file listing all EBS volumes within the specified AWS account.
+Generates a comma-delimited (CSV) file listing all EBS volumes within the AWS account configured in the *production* profile:
     
 `python aws-list-ebs.py -p production -v -r us-east-1 -o volumes.csv `
 
+Generates a comma-delimited (CSV) file listing all EBS volumes within the AWS accounts configured in the *production* and *non-prod* profiles:
+    
+`python aws-list-ebs.py -p "non-prod,production" -v -r us-east-1 -o volumes.csv `
+
 # Requirements
+
+The following packages need to be installed prior to using this utility:
 
 ## boto3
 
@@ -28,5 +33,3 @@ Generates a comma-delimited (CSV) file listing all EBS volumes within the specif
 
 `pip install python-dotenv`
 
-## numpy
-`pip install numpy`

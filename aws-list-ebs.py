@@ -8,15 +8,14 @@ import csv
 # Generates a comma-delimited (CSV) file listing all EBS volumes within the specified AWS account.
 
 # Setup command-line arguments
+
+
 def setup_cli_args():
     parser = argparse.ArgumentParser(
         description='Creates a comma-delimited (CSV) file listing all EBS volumes in the specified account.')
 
     parser.add_argument(
-        "-p", "--profile", dest="profile", help="Specifies the AWS profile (from credentials file) to be used.")
-
-    parser.add_argument(
-        "-v", "--verbose", help="Verbose output.", action="store_true", dest="verbose", default=False)
+        "-p", "--profile", dest="profile", help="A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes.")
 
     parser.add_argument(
         "-r", "--region", help="Set a region if not already included in profile.", dest="region")
@@ -28,22 +27,35 @@ def setup_cli_args():
 
 
 # Displays startup paramters
-def display_startup_parameters(args, account):
+def display_startup_parameters(args):
     print("*******************************************")
-    print(" Account ID: {0}".format(account.account_id))
-    print(" Region:     {0}".format(account.session.region_name))
+    print("  Region:     {0}".format(args.region))
+
+    if (args.profile is None):
+        print("  Profile:    Using env configuration")
+    else:
+        print("  Profile:    {0}".format(args.profile))
+
+    print("  Date:       {0}".format(datetime.now().strftime("%c")))
+    print("  Output:     {0}".format(args.output))
+    print("*******************************************")
+
+# Display AWS Account settings
+
+
+def display_account_info(account):
+    print("Processing...")
+    print("  Account ID: {0}".format(account.account_id))
+    print("  Region:     {0}".format(account.session.region_name))
 
     if (account.profile_name is None):
-        print(" Profile:    Using env configuration")
+        print("  Profile:    Using env configuration")
     else:
-        print(" Profile:    {0}".format(account.profile_name))
-
-    print(" Date:       {0}".format(datetime.now().strftime("%c")))
-    print(" Output:     {0}".format(args.output))
-    print(" Verbose:    {0}".format(args.verbose))
-    print("*******************************************")
+        print("  Profile:    {0}".format(account.profile_name))
 
 # Creates a CSV file with EBS Volume information
+
+
 def write_csv_file(filename, rows, field_names):
     try:
         with open(filename, 'w', newline='') as f:
@@ -54,9 +66,11 @@ def write_csv_file(filename, rows, field_names):
     except BaseException as e:
         print('An error occurred when writing to ', filename)
     else:
-        print("Results successfully saved to {0}".format(filename))
+        print("{0} rows successfully saved to {1}\r\n".format(len(rows), filename))
 
 # Returns a list of EBS Volume details for each of the EBS Volumes in the specified account
+
+
 def get_ebs_volume_details(client, account_id, region_name):
     # Get a list of all EBS Volumes
     volume_details = client.describe_volumes()
@@ -128,13 +142,29 @@ dotenv.load_dotenv()
 # Get command-line arguments
 args = setup_cli_args()
 
-# Create AWS Account object using the profile name specified
-aws_account = account.Account(args.profile, args.region)
+# Get the list of comma-delimited profiles
+profiles = args.profile.split(',')
 
-display_startup_parameters(args, aws_account)
+# Initialize the list that will hold each data row
+volume_rows = []
 
-volume_rows = list(get_ebs_volume_details(aws_account.session.client('ec2'), aws_account.account_id, aws_account.region_name))
+display_startup_parameters(args)
 
-field_names = ['Account ID', 'EC2 ARN', 'EC2 Instance ID', 'Volume ARN', 'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
+# Iterate over all AWS profiles and concatenate the data
+for profile in [p.strip() for p in profiles]:
+    # Create AWS Account object using the profile name specified
+    aws_account = account.Account(profile, args.region)
+
+    display_account_info(aws_account)
+
+    rows = list(get_ebs_volume_details(aws_account.session.client(
+        'ec2'), aws_account.account_id, aws_account.region_name))
+
+    print("{0} rows processed.\r\n".format(len(rows)))
+
+    volume_rows.extend(rows)
+
+field_names = ['Account ID', 'EC2 ARN', 'EC2 Instance ID', 'Volume ARN',
+               'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
 
 write_csv_file(args.output, volume_rows, field_names)
