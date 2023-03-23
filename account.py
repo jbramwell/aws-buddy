@@ -1,7 +1,6 @@
 import boto3
 import os
 
-
 class Account:
     _profile_name = ''
     _session = None
