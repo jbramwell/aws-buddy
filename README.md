@@ -1,16 +1,8 @@
 # List EBS Volumes
-## Usage
+
+**aws-list-ebs**
 
 Generates a list of all EBS Volumes in the specified AWS Account(s) and saves them to a comma-delimited (CSV) file.
-
-Usage: `python aws-list-volumes.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION]`
-
-| switch |           | description                                                         |
-|--------|-----------|:--------------------------------------------------------------------|
-| -h     | --help    | Show this help message and exit.                                    |
-| -p     | --profile | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
-| -o     | --output  | The name of the file to write the comma-separated (CSV) results to. |
-| -r     | --region  | Set a region if not already included in profile (e.g. us-east-1).   |
 
 ## Data Fields
 
@@ -29,6 +21,17 @@ The following fields are included in the results:
 - Volume ARN
 - Volume ID
 
+## Usage
+
+Usage: `python aws-list-volumes.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION]`
+
+| switch |           | description                                                         |
+|--------|-----------|:--------------------------------------------------------------------|
+| -h     | --help    | Show this help message and exit.                                    |
+| -p     | --profile | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
+| -o     | --output  | The name of the file to write the comma-separated (CSV) results to. |
+| -r     | --region  | Set a region if not already included in profile (e.g. us-east-1).   |
+
 ## Examples
 
 Generates a comma-delimited (CSV) file listing all EBS volumes within the AWS Account configured in the *production* profile:
@@ -40,18 +43,10 @@ Generates a comma-delimited (CSV) file listing all EBS volumes within the AWS ac
 `python aws-list-ebs.py -p "non-prod,production" -r us-east-1 -o volumes.csv `
 
 # List Dedicated Hosts
-## Usage
+
+**aws-list-dedicated-hosts**
 
 Generates a comma-delimited (CSV) file listing all Dedicated Hosts within the specified AWS Account(s).
-
-Usage: `python aws-list-dedicated-hosts.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION]`
-
-| switch |           | description                                                         |
-|--------|-----------|:--------------------------------------------------------------------|
-| -h     | --help    | Show this help message and exit.                                    |
-| -p     | --profile | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
-| -o     | --output  | The name of the file to write the comma-separated (CSV) results to. |
-| -r     | --region  | Set a region if not already included in profile (e.g. us-east-1).   |
 
 ## Data Fields
 
@@ -70,6 +65,17 @@ The following fields are included in the results:
 - Host Reservation ID
 - Instance Type
 - Total Instance Capacity
+
+## Usage
+
+Usage: `python aws-list-dedicated-hosts.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION]`
+
+| switch |           | description                                                         |
+|--------|-----------|:--------------------------------------------------------------------|
+| -h     | --help    | Show this help message and exit.                                    |
+| -p     | --profile | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
+| -o     | --output  | The name of the file to write the comma-separated (CSV) results to. |
+| -r     | --region  | Set a region if not already included in profile (e.g. us-east-1).   |
 
 ## Examples
 
@@ -93,3 +99,13 @@ The following packages need to be installed prior to using this utility:
 
 `pip install python-dotenv`
 
+# Profiles
+
+When calling the Python scripts described above, the profile name(s) specified in the -p (PROFILE) switch maps to one or more profiles defined in the AWS *credentials* file, which is located in one of the following locations:
+
+| Operating System | File Location                           |
+|------------------|-----------------------------------------|
+| Windows          | `%USERPROFILE%\.aws\credentials` |
+| Linux & macOS    | `~/.aws/credentials`                    |
+
+Read more in [Shared Config and Credential Files](https://docs.aws.amazon.com/sdkref/latest/guide/file-format.html).
