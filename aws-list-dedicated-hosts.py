@@ -87,7 +87,11 @@ def get_dedicated_host_details(client, account_id, region_name):
         instance_type = ''
         available_vcpus = 0
         instance_id = ''
-
+        total_instance_capacity = 0
+        available_instance_capacity = 0
+        instance_type = ''
+        available_vcpus = 0
+        
         host_id = host["HostId"]
         
         if ('HostReservationId' in host):
@@ -96,12 +100,13 @@ def get_dedicated_host_details(client, account_id, region_name):
             host_reservation_id = "<none>"
         
         availability_zone = host["AvailabilityZone"]
-        availability = host["AvailableCapacity"]["AvailableInstanceCapacity"]
 
-        total_instance_capacity = availability[0]["TotalCapacity"]
-        available_instance_capacity = availability[0]["AvailableCapacity"]
-        instance_type = availability[0]["InstanceType"]
-        available_vcpus = host["AvailableCapacity"]["AvailableVCpus"]
+        if ('AvailableCapacity' in host):
+            availability = host["AvailableCapacity"]["AvailableInstanceCapacity"]
+            total_instance_capacity = availability[0]["TotalCapacity"]
+            available_instance_capacity = availability[0]["AvailableCapacity"]
+            instance_type = availability[0]["InstanceType"]
+            available_vcpus = host["AvailableCapacity"]["AvailableVCpus"]
 
         if ('Tags' in host):
             for tag in host['Tags']:

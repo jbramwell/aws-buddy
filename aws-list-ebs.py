@@ -83,17 +83,22 @@ def get_ebs_volume_details(client, account_id, region_name):
         instance_id = ''
         device = ''
         state = ''
+        tags = ''
 
         if (volume['VolumeType'] != 'standard'):
             iops = volume['Iops']
 
         if ('Tags' in volume):
             for tag in volume['Tags']:
+                tags += tag['Key'] + ":" + tag['Value'] + ","
+
                 if (tag['Key'] == 'Name'):
                     name = tag['Value']
 
                 if (tag['Key'] == 'drive'):
                     drive = tag['Value']
+        if (len(tags) > 0):
+            tags = tags.rstrip(',')
 
         for attachment in volume['Attachments']:
             if ('InstanceId' in attachment):
@@ -131,7 +136,8 @@ def get_ebs_volume_details(client, account_id, region_name):
             volume['VolumeType'],
             volume['Size'],
             iops,
-            state])
+            state,
+            tags])
 
     return volume_rows
 
@@ -165,6 +171,6 @@ for profile in [p.strip() for p in profiles]:
     volume_rows.extend(rows)
 
 field_names = ['Account ID', 'EC2 ARN', 'EC2 Instance ID', 'Volume ARN',
-               'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State']
+               'Volume ID', 'Name', 'Device', 'Drive', 'Type', 'Size', 'IOPS', 'State', 'Tags']
 
 write_csv_file(args.output, volume_rows, field_names)
