@@ -2,9 +2,7 @@
 
 A collection of Python scripts for listing information about AWS EC2s, Dedicated Hosts, and EBS Volumes.
 
-# List EBS Volumes
-
-**aws-list-ebs**
+# aws-list-ebs
 
 Generates a list of all EBS Volumes in the specified AWS Account(s) and saves them to a comma-delimited (CSV) file.
 
@@ -46,9 +44,7 @@ Generates a comma-delimited (CSV) file listing all EBS volumes within the AWS ac
     
 `python aws-list-ebs.py -p "non-prod,production" -r us-east-1 -o volumes.csv `
 
-# List Dedicated Hosts
-
-**aws-list-dedicated-hosts**
+# aws-list-dedicated-hosts
 
 Generates a comma-delimited (CSV) file listing all Dedicated Hosts within the specified AWS Account(s).
 
