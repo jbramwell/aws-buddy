@@ -203,7 +203,7 @@ for profile in [p.strip() for p in profiles]:
 
 field_names = ['Account ID', 'Host ID', 'Host Name', 'Host Reservation ID',
                'Availability Zone', 'Total Instance Capacity', 
-               'Availabile Instance Capacity', 'Instance Type',
+               'Available Instance Capacity', 'Instance Type',
                'Available vCPUs', 'EC2 Instance ID', 'EC2 ARN', 'EC2 Name',
                'EC2 Instance Type']
 
