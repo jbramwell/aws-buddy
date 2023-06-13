@@ -1,3 +1,7 @@
+# AWS Buddy
+
+A collection of Python scripts for listing information about AWS EC2s, Dedicated Hosts, and EBS Volumes.
+
 # List EBS Volumes
 
 **aws-list-ebs**
