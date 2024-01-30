@@ -87,6 +87,46 @@ Generates a comma-delimited (CSV) file listing all Dedicated Hosts within the AW
     
 `python aws-list-dedicated-hosts.py -p "non-prod,production" -r us-east-1 -o volumes.csv `
 
+# aws-tag-resources
+
+Tags all (taggable) resources within an AWS account based on input filters and saves the results to a comma-delimited (CSV) file.
+
+## Data Fields
+
+The following fields are included in the results:
+
+- Status Code
+- Error Code
+- Error Message
+- Account ID
+- Resource ARN
+- Resource ID
+- Service
+- Region
+- Resource Type
+- Tags
+
+## Usage
+
+Usage: `python aws-tag-resources.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION] [-s SERVICES] [-f FILTER] [-e yes] -t "TAG=VALUE"`
+
+| switch |            | description                                                         |
+|--------|------------|:--------------------------------------------------------------------|
+| -h     | --help     | Show this help message and exit.                                    |
+| -t     | --tags     | A comma-separated list of key/value pairs for tags to be updated. The key/value list must be enclosed in quotes. |
+| -s     | --services | A comma-separated list of AWS Services for which the Tags should be updated. |
+| -f     | --filter   | The text specified within 'filter' must appear within the resource ARN to be tagged. |
+| -e     | --eXecute  | By default, this command runs in 'what if' mode. Set this argument to 'yes' to update the tag values. |
+| -p     | --profile  | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
+| -o     | --output   | The name of the file to write the comma-separated (CSV) results to. |
+| -r     | --region   | Set a region if not already included in profile (e.g. us-east-1).   |
+
+## Examples
+
+Generate a comma-delimited (CSV) file, in a "what if?" mode, for all Amazon S3 resources to be tagged using the *production* profile with an *environment* tag set to *production*:
+    
+`python aws-tag-resources.py -p production -r us-east-1 -o resources.csv -t "environment=production" -s "s3" -x no `
+
 # Requirements
 
 The following packages need to be installed prior to using this utility:
