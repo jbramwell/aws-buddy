@@ -46,7 +46,7 @@ def display_startup_parameters(args):
         print("  Profile:      {0}".format(args.profile))
 
     print("  AWS Services: {0}".format(args.services))
-    print("  Filter:       {0}".format(args.filter))
+    print("  Filter:       {0}".format(args.filter if args.filter != "" else "no filter"))
     print("  Tags:         {0}".format(args.tags))
     print("  Execute:      {0}".format(args.execute))
     print("  Date:         {0}".format(datetime.now().strftime("%c")))
@@ -85,7 +85,10 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
     pagination_token = "<first try!>"
 
     # Get resources that can be tagged
-    resources = client.get_resources(ResourceTypeFilters = services)
+    if (services[0] == "all"):
+        resources = client.get_resources()
+    else:
+        resources = client.get_resources(ResourceTypeFilters = services)
 
     # Iterate through resources and tag them
     while(pagination_token != ""):
@@ -162,8 +165,11 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
                     resource_tags])
 
         # Get the next set of resources
-        resources = client.get_resources(ResourceTypeFilters = services,
-                                         PaginationToken=pagination_token)
+        if (services[0] == "all"):
+            resources = client.get_resources(PaginationToken=pagination_token)
+        else:
+            resources = client.get_resources(ResourceTypeFilters = services,
+                                             PaginationToken=pagination_token)
 
     return resource_rows
 
