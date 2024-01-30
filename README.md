@@ -116,7 +116,7 @@ Usage: `python aws-tag-resources.py [-h] [-p PROFILE] [-o OUTPUT] [-r REGION] [-
 | -t     | --tags     | A comma-separated list of key/value pairs for tags to be updated. The key/value list must be enclosed in quotes. |
 | -s     | --services | A comma-separated list of AWS Services for which the Tags should be updated. |
 | -f     | --filter   | The text specified within 'filter' must appear within the resource ARN to be tagged. |
-| -e     | --eXecute  | By default, this command runs in 'what if' mode. Set this argument to 'yes' to update the tag values. |
+| -x     | --eXecute  | By default, this command runs in 'what if' mode. Set this argument to 'yes' to update the tag values. |
 | -p     | --profile  | A comma-separated list of profiles (from credentials file) to be used. If specifying more than one profile, they must be enclosed in quotes. |
 | -o     | --output   | The name of the file to write the comma-separated (CSV) results to. |
 | -r     | --region   | Set a region if not already included in profile (e.g. us-east-1).   |
