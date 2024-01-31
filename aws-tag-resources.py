@@ -133,8 +133,11 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
             if (execute == "yes"):
                 print("  Tagging {0} {1} {2}".format(resource_type, resource_id, resource_arn))
                 
-                response = client.tag_resources(ResourceARNList=[resource_arn], 
-                                                Tags={item['Key']: item['Value'] for item in resource_tags})
+                try:
+                    response = client.tag_resources(ResourceARNList=[resource_arn], 
+                                                    Tags={item['Key']: item['Value'] for item in resource_tags})
+                except:
+                    print("  Failed to tag {0} {1} {2}".format(resource_type, resource_id, resource_arn))
 
                 # If the tag update failed, display the error message
                 if (response['FailedResourcesMap'] != {}):
