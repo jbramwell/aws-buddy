@@ -46,7 +46,7 @@ def display_startup_parameters(args):
         print("  Profile:      {0}".format(args.profile))
 
     print("  AWS Services: {0}".format(args.services))
-    print("  Filter:       {0}".format(args.filter if args.filter != "" else "no filter"))
+    print("  Filter:       {0}".format(args.filter))
     print("  Tags:         {0}".format(args.tags))
     print("  Execute:      {0}".format(args.execute))
     print("  Date:         {0}".format(datetime.now().strftime("%c")))
@@ -67,6 +67,8 @@ def display_account_info(account):
 # Creates a CSV file with EBS Volume information
 
 
+# Just a comment, nothing else! 🤪
+
 def write_csv_file(filename, rows, field_names):
     try:
         with open(filename, 'w', newline='') as f:
@@ -85,10 +87,7 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
     pagination_token = "<first try!>"
 
     # Get resources that can be tagged
-    if (services[0] == "all"):
-        resources = client.get_resources()
-    else:
-        resources = client.get_resources(ResourceTypeFilters = services)
+    resources = client.get_resources(ResourceTypeFilters = services)
 
     # Iterate through resources and tag them
     while(pagination_token != ""):
@@ -133,11 +132,8 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
             if (execute == "yes"):
                 print("  Tagging {0} {1} {2}".format(resource_type, resource_id, resource_arn))
                 
-                try:
-                    response = client.tag_resources(ResourceARNList=[resource_arn], 
-                                                    Tags={item['Key']: item['Value'] for item in resource_tags})
-                except:
-                    print("  Failed to tag {0} {1} {2}".format(resource_type, resource_id, resource_arn))
+                response = client.tag_resources(ResourceARNList=[resource_arn], 
+                                                Tags={item['Key']: item['Value'] for item in resource_tags})
 
                 # If the tag update failed, display the error message
                 if (response['FailedResourcesMap'] != {}):
@@ -168,11 +164,8 @@ def update_resource_tags(client, new_tags, services, arn_filter, execute):
                     resource_tags])
 
         # Get the next set of resources
-        if (services[0] == "all"):
-            resources = client.get_resources(PaginationToken=pagination_token)
-        else:
-            resources = client.get_resources(ResourceTypeFilters = services,
-                                             PaginationToken=pagination_token)
+        resources = client.get_resources(ResourceTypeFilters = services,
+                                         PaginationToken=pagination_token)
 
     return resource_rows
 
